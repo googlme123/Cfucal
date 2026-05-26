@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#01696f" />
+  <title>CFU Plate Calculator</title>
+  <style>
+    :root {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
+      --color-bg: #f7f6f2; --color-surface: #fbfbf9; --color-surface-2: #f3f0ec; --color-border: #d4d1ca;
+      --color-text: #28251d; --color-text-muted: #6f6d67; --color-primary: #01696f; --color-primary-hover: #0c4e54;
+      --color-primary-soft: #d9eceb; --color-warning: #964219; --color-success: #437a22; --shadow-md: 0 12px 32px rgba(25,27,28,.12);
+      --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #22211f; --color-border: #393836;
+      --color-text: #ece8df; --color-text-muted: #a9a399; --color-primary: #4f98a3; --color-primary-hover: #68b4bf;
+      --color-primary-soft: #203538; --color-warning: #d18a63; --color-success: #87b96a; --shadow-md: 0 12px 32px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; min-height: 100dvh; font-family: var(--font-body); background:
+      radial-gradient(circle at top, rgba(1,105,111,.08), transparent 28%), var(--color-bg);
+      color: var(--color-text); line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    .app { max-width: 720px; margin: 0 auto; padding: max(env(safe-area-inset-top), var(--space-6)) var(--space-4) max(env(safe-area-inset-bottom), var(--space-6)); }
+    .topbar { display: flex; justify-content: space-between; align-items: start; gap: var(--space-4); margin-bottom: var(--space-6); }
+    .title { font-size: var(--text-xl); line-height: 1.1; margin: 0 0 var(--space-2); }
+    .subtitle { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); max-width: 36ch; }
+    .theme-toggle { min-width: 48px; min-height: 48px; border-radius: var(--radius-full, 999px); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); }
+    .card {
+      background: color-mix(in srgb, var(--color-surface) 92%, white 8%);
+      border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: var(--shadow-md);
+      padding: var(--space-5); margin-bottom: var(--space-5);
+    }
+    .grid { display: grid; gap: var(--space-4); }
+    @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+    label { display: grid; gap: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); }
+    input {
+      width: 100%; min-height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-lg);
+    }
+    input:focus-visible, button:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent); outline-offset: 2px; }
+    .dilution-wrap { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: var(--space-3); }
+    .prefix { min-height: 52px; display: grid; place-items: center; padding: 0 var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface-2); border: 1px solid var(--color-border); font-weight: 700; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-5); }
+    .btn { min-height: 52px; border: 0; border-radius: var(--radius-lg); font-weight: 700; }
+    .btn-primary { background: var(--color-primary); color: #fff; }
+    .btn-secondary { background: var(--color-surface-2); color: var(--color-text); border: 1px solid var(--color-border); }
+    .results { display: grid; gap: var(--space-3); }
+    .stat { background: var(--color-surface-2); border-radius: var(--radius-lg); padding: var(--space-4); border: 1px solid var(--color-border); }
+    .stat-label { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-1); }
+    .stat-value { font-size: clamp(1.5rem, 1.2rem + 2vw, 2.2rem); font-weight: 800; letter-spacing: -0.03em; }
+    .formula { font-size: var(--text-sm); color: var(--color-text-muted); }
+    .history-list { display: grid; gap: var(--space-3); }
+    .history-item { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); }
+    .history-head { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); }
+    .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 var(--space-3); border-radius: 999px; background: var(--color-primary-soft); color: var(--color-primary); font-size: var(--text-xs); font-weight: 700; }
+    .muted { color: var(--color-text-muted); }
+    .mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    .error { color: var(--color-warning); font-size: var(--text-sm); min-height: 1.5em; margin-top: var(--space-3); }
+    .footnote { font-size: var(--text-xs); color: var(--color-text-muted); }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="topbar">
+      <div>
+        <h1 class="title">CFU Plate Calculator</h1>
+        <p class="subtitle">Enter two plate counts and the dilution exponent. It returns the average count, CFU/mL, and log10 in the same format you use at the bench.</p>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Toggle theme" data-theme-toggle>◐</button>
+    </section>
+
+    <section class="card">
+      <div class="grid two">
+        <label>
+          Plate count 1
+          <input id="count1" inputmode="decimal" placeholder="e.g. 42" autocomplete="off" />
+        </label>
+        <label>
+          Plate count 2
+          <input id="count2" inputmode="decimal" placeholder="e.g. 46" autocomplete="off" />
+        </label>
+      </div>
+      <div class="grid" style="margin-top: var(--space-4);">
+        <label>
+          Dilution exponent
+          <div class="dilution-wrap">
+            <div class="prefix">10^</div>
+            <input id="dilution" inputmode="text" placeholder="e.g. -7 or 2" autocomplete="off" autocapitalize="off" spellcheck="false" />
+          </div>
+        </label>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="calculateBtn" type="button">Calculate</button>
+        <button class="btn btn-secondary" id="clearBtn" type="button">Clear</button>
+      </div>
+      <div class="error" id="error"></div>
+    </section>
+
+    <section class="card">
+      <div class="results">
+        <div class="stat">
+          <div class="stat-label">Average count</div>
+          <div class="stat-value mono" id="avgValue">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">CFU/mL</div>
+          <div class="stat-value mono" id="cfuValue">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">log10</div>
+          <div class="stat-value mono" id="logValue">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Optional: entered number minus log10</div>
+          <label>
+            <input id="logSubtractInput" inputmode="decimal" placeholder="Enter number, result updates live" autocomplete="off" />
+          </label>
+          <button class="btn btn-secondary" id="adjustBtn" type="button" style="margin-top: var(--space-3);">Update adjusted result</button>
+          <div class="stat-label" style="margin-top: var(--space-3);">Adjusted result</div>
+          <div class="stat-value mono" id="adjustedLogValue">—</div>
+        </div>
+      </div>
+      <p class="formula" id="formulaText">Formula: average = (count1 + count2) / 2, CFU/mL = average ÷ 10^dilution, log10 = log10(CFU/mL).</p>
+    </section>
+
+    <section class="card">
+      <div class="history-head">
+        <strong>Recent calculations</strong>
+        <span class="pill">Local only</span>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="muted">No calculations yet.</div>
+      </div>
+      <p class="footnote">Rounding rule: the duplicate plate average is rounded per your USP-style rule before CFU/mL is calculated, and log10 is shown to the hundredth. This file works offline in a browser.</p>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const el = {
+      count1: $('count1'), count2: $('count2'), dilution: $('dilution'), error: $('error'),
+      avgValue: $('avgValue'), cfuValue: $('cfuValue'), logValue: $('logValue'), adjustedLogValue: $('adjustedLogValue'), logSubtractInput: $('logSubtractInput'), formulaText: $('formulaText'), historyList: $('historyList')
+    };
+
+    const state = { history: [] };
+
+    function setTheme() {
+      const root = document.documentElement;
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    function roundUSP(value) {
+      return Math.round(value);
+    }
+
+    function fmtNumber(n) {
+      if (Number.isInteger(n)) return String(n);
+      return Number(n.toFixed(2)).toString();
+    }
+
+    function fmtSciFromRounded(n) {
+      const exp = Math.floor(Math.log10(n));
+      const mant = n / (10 ** exp);
+      return `${mant.toFixed(1)} × 10^${exp}`;
+    }
+
+    let lastCalculation = null;
+
+    function updateAdjustedResult(saveHistory = false) {
+      if (!lastCalculation) {
+        el.adjustedLogValue.textContent = '—';
+        return;
+      }
+      const subtractRaw = el.logSubtractInput.value.trim();
+      if (subtractRaw === '') {
+        el.adjustedLogValue.textContent = '—';
+        el.formulaText.textContent = `Average = (${fmtNumber(lastCalculation.c1)} + ${fmtNumber(lastCalculation.c2)}) / 2 = ${fmtNumber(lastCalculation.rawAvg)} → ${lastCalculation.avgText}; CFU/mL = ${lastCalculation.avgText} ÷ 10^${lastCalculation.d} = ${lastCalculation.cfuText}; log10 = ${lastCalculation.logText}.`;
+        return;
+      }
+      const enteredValue = Number(subtractRaw.replace(/,/g, ''));
+      if (Number.isNaN(enteredValue)) {
+        el.adjustedLogValue.textContent = '—';
+        return;
+      }
+      const adjusted = enteredValue - lastCalculation.log10;
+      const adjustedText = Number(adjusted.toFixed(2)).toFixed(2);
+      el.adjustedLogValue.textContent = adjustedText;
+      el.formulaText.textContent = `Average = (${fmtNumber(lastCalculation.c1)} + ${fmtNumber(lastCalculation.c2)}) / 2 = ${fmtNumber(lastCalculation.rawAvg)} → ${lastCalculation.avgText}; CFU/mL = ${lastCalculation.avgText} ÷ 10^${lastCalculation.d} = ${lastCalculation.cfuText}; log10 = ${lastCalculation.logText}; adjusted result = ${fmtNumber(enteredValue)} - ${lastCalculation.logText} = ${adjustedText}.`;
+      if (saveHistory) {
+        state.history.unshift({ input: `${fmtNumber(lastCalculation.c1)}/${fmtNumber(lastCalculation.c2)} ${lastCalculation.d}`, avg: lastCalculation.avgText, cfu: lastCalculation.cfuText, log: lastCalculation.logText, adjusted: adjustedText, ts: new Date().toLocaleString() });
+        state.history = state.history.slice(0, 8);
+        renderHistory();
+      }
+    }
+
+    function calculate() {
+      const c1 = Number(el.count1.value.replace(/,/g, ''));
+      const c2 = Number(el.count2.value.replace(/,/g, ''));
+      const d = Number(el.dilution.value.trim());
+
+      if ([c1, c2, d].some(v => Number.isNaN(v))) {
+        el.error.textContent = 'Enter valid numbers in all three fields.';
+        return;
+      }
+      if (c1 < 0 || c2 < 0) {
+        el.error.textContent = 'Plate counts must be zero or greater.';
+        return;
+      }
+
+      el.error.textContent = '';
+      const rawAvg = (c1 + c2) / 2;
+      const avg = roundUSP(rawAvg);
+      const cfu = avg / (10 ** d);
+      const log10 = Math.log10(cfu);
+      const avgText = fmtNumber(avg);
+      const cfuText = fmtSciFromRounded(cfu);
+      const logText = Number(log10.toFixed(2)).toFixed(2);
+
+      lastCalculation = { c1, c2, d, rawAvg, avgText, cfuText, log10, logText };
+
+      el.avgValue.textContent = avgText;
+      el.cfuValue.textContent = cfuText;
+      el.logValue.textContent = logText;
+      el.adjustedLogValue.textContent = '—';
+      el.formulaText.textContent = `Average = (${fmtNumber(c1)} + ${fmtNumber(c2)}) / 2 = ${fmtNumber(rawAvg)} → ${avgText}; CFU/mL = ${avgText} ÷ 10^${d} = ${cfuText}; log10 = ${logText}.`;
+
+      state.history.unshift({ input: `${fmtNumber(c1)}/${fmtNumber(c2)} ${d}`, avg: avgText, cfu: cfuText, log: logText, adjusted: '—', ts: new Date().toLocaleString() });
+      state.history = state.history.slice(0, 8);
+      renderHistory();
+      updateAdjustedResult(false);
+    }
+
+    function renderHistory() {
+      if (!state.history.length) {
+        el.historyList.innerHTML = '<div class="muted">No calculations yet.</div>';
+        return;
+      }
+      el.historyList.innerHTML = state.history.map(item => `
+        <article class="history-item">
+          <div class="history-head"><strong class="mono">${item.input}</strong><span class="muted">${item.ts}</span></div>
+          <div class="muted mono">Avg ${item.avg} · CFU/mL ${item.cfu} · log10 ${item.log}${item.adjusted !== '—' ? ` · adjusted ${item.adjusted}` : ''}</div>
+        </article>
+      `).join('');
+    }
+
+    function clearAll() {
+      el.count1.value = '';
+      el.count2.value = '';
+      el.dilution.value = '';
+      el.error.textContent = '';
+      el.avgValue.textContent = '—';
+      el.cfuValue.textContent = '—';
+      el.logValue.textContent = '—';
+      el.adjustedLogValue.textContent = '—';
+      el.logSubtractInput.value = '';
+      el.formulaText.textContent = 'Formula: average = (count1 + count2) / 2, CFU/mL = average ÷ 10^dilution, log10 = log10(CFU/mL).';
+      el.count1.focus();
+    }
+
+    document.querySelector('[data-theme-toggle]').addEventListener('click', toggleTheme);
+    $('calculateBtn').addEventListener('click', calculate);
+    $('adjustBtn').addEventListener('click', () => updateAdjustedResult(true));
+    $('clearBtn').addEventListener('click', clearAll);
+    [el.count1, el.count2, el.dilution].forEach(input => input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') calculate();
+    }));
+    el.logSubtractInput.addEventListener('input', () => updateAdjustedResult(false));
+    el.logSubtractInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') updateAdjustedResult(true);
+    });
+
+    setTheme();
+  </script>
+</body>
+</html>
