@@ -46,6 +46,8 @@
     .grid { display: grid; gap: var(--space-4); }
     @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
     label { display: grid; gap: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); }
+    select { width: 100%; min-height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-lg); }
+    select:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent); outline-offset: 2px; }
     input {
       width: 100%; min-height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-lg);
       border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-lg);
@@ -98,12 +100,11 @@
           Dilution exponent
           <div class="dilution-wrap">
             <div class="prefix">10^</div>
-            <input id="dilution" inputmode="text" placeholder="e.g. -7 or 2" autocomplete="off" autocapitalize="off" spellcheck="false" />
+            <select id="dilution" autocomplete="off"></select>
           </div>
         </label>
       </div>
       <div class="actions">
-        <button class="btn btn-primary" id="calculateBtn" type="button">Calculate</button>
         <button class="btn btn-secondary" id="clearBtn" type="button">Clear</button>
       </div>
       <div class="error" id="error"></div>
@@ -124,13 +125,11 @@
           <div class="stat-value mono" id="logValue">—</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Optional: entered number minus log10</div>
+          <div class="stat-label">Log Reduction</div>
           <label>
             <input id="logSubtractInput" inputmode="decimal" placeholder="Enter number, result updates live" autocomplete="off" />
           </label>
-          <button class="btn btn-secondary" id="adjustBtn" type="button" style="margin-top: var(--space-3);">Update adjusted result</button>
-          <div class="stat-label" style="margin-top: var(--space-3);">Adjusted result</div>
-          <div class="stat-value mono" id="adjustedLogValue">—</div>
+                    <div class="stat-value mono" id="adjustedLogValue">—</div>
         </div>
       </div>
       <p class="formula" id="formulaText">Formula: average = (count1 + count2) / 2, CFU/mL = average ÷ 10^dilution, log10 = log10(CFU/mL).</p>
@@ -152,10 +151,22 @@
     const $ = (id) => document.getElementById(id);
     const el = {
       count1: $('count1'), count2: $('count2'), dilution: $('dilution'), error: $('error'),
-      avgValue: $('avgValue'), cfuValue: $('cfuValue'), logValue: $('logValue'), adjustedLogValue: $('adjustedLogValue'), logSubtractInput: $('logSubtractInput'), formulaText: $('formulaText'), historyList: $('historyList')
+      avgValue: $('avgValue'), cfuValue: $('cfuValue'), logValue: $('logValue'), adjustedLogValue: $('adjustedLogValue'), dilution: $('dilution'), logSubtractInput: $('logSubtractInput'), formulaText: $('formulaText'), historyList: $('historyList')
     };
 
     const state = { history: [] };
+
+
+    function fillDilutionOptions() {
+      const sel = el.dilution;
+      for (let i = -10; i <= 10; i++) {
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = String(i);
+        sel.appendChild(opt);
+      }
+      sel.value = '-1';
+    }
 
     function setTheme() {
       const root = document.documentElement;
@@ -204,7 +215,7 @@
       const adjusted = enteredValue - lastCalculation.log10;
       const adjustedText = Number(adjusted.toFixed(2)).toFixed(2);
       el.adjustedLogValue.textContent = adjustedText;
-      el.formulaText.textContent = `Average = (${fmtNumber(lastCalculation.c1)} + ${fmtNumber(lastCalculation.c2)}) / 2 = ${fmtNumber(lastCalculation.rawAvg)} → ${lastCalculation.avgText}; CFU/mL = ${lastCalculation.avgText} ÷ 10^${lastCalculation.d} = ${lastCalculation.cfuText}; log10 = ${lastCalculation.logText}; adjusted result = ${fmtNumber(enteredValue)} - ${lastCalculation.logText} = ${adjustedText}.`;
+      el.formulaText.textContent = `Average = (${fmtNumber(lastCalculation.c1)} + ${fmtNumber(lastCalculation.c2)}) / 2 = ${fmtNumber(lastCalculation.rawAvg)} → ${lastCalculation.avgText}; CFU/mL = ${lastCalculation.avgText} ÷ 10^${lastCalculation.d} = ${lastCalculation.cfuText}; log10 = ${lastCalculation.logText}; log reduction = ${fmtNumber(enteredValue)} - ${lastCalculation.logText} = ${adjustedText}.`;
       if (saveHistory) {
         state.history.unshift({ input: `${fmtNumber(lastCalculation.c1)}/${fmtNumber(lastCalculation.c2)} ${lastCalculation.d}`, avg: lastCalculation.avgText, cfu: lastCalculation.cfuText, log: lastCalculation.logText, adjusted: adjustedText, ts: new Date().toLocaleString() });
         state.history = state.history.slice(0, 8);
@@ -215,10 +226,18 @@
     function calculate() {
       const c1 = Number(el.count1.value.replace(/,/g, ''));
       const c2 = Number(el.count2.value.replace(/,/g, ''));
-      const d = Number(el.dilution.value.trim());
+      const d = Number(el.dilution.value);
 
+      if ([el.count1.value.trim(), el.count2.value.trim()].some(v => v === '')) {
+        el.error.textContent = '';
+        return;
+      }
       if ([c1, c2, d].some(v => Number.isNaN(v))) {
         el.error.textContent = 'Enter valid numbers in all three fields.';
+        return;
+      }
+      if (d < -10 || d > 10) {
+        el.error.textContent = 'Dilution exponent must be between -10 and 10.';
         return;
       }
       if (c1 < 0 || c2 < 0) {
@@ -277,17 +296,19 @@
     }
 
     document.querySelector('[data-theme-toggle]').addEventListener('click', toggleTheme);
-    $('calculateBtn').addEventListener('click', calculate);
-    $('adjustBtn').addEventListener('click', () => updateAdjustedResult(true));
     $('clearBtn').addEventListener('click', clearAll);
-    [el.count1, el.count2, el.dilution].forEach(input => input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') calculate();
-    }));
+    [el.count1, el.count2, el.dilution].forEach(input => {
+      input.addEventListener('input', () => calculate());
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') calculate();
+      });
+    });
     el.logSubtractInput.addEventListener('input', () => updateAdjustedResult(false));
     el.logSubtractInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') updateAdjustedResult(true);
     });
 
+    fillDilutionOptions();
     setTheme();
   </script>
 </body>
