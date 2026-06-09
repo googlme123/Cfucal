@@ -83,7 +83,16 @@
     .suit-subpanel { display: none; }
     .suit-subpanel.active { display: block; }
     .suit-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3); margin-bottom: var(--space-5); }
-    .suit-tab-btn { min-height: 48px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-weight: 700; }
+    .suit-tab-btn {
+      min-height: 48px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-weight: 700;
+      padding: 0 0.25rem;
+      font-size: var(--text-sm);
+    }
     .suit-tab-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
   </style>
 </head>
@@ -104,21 +113,19 @@
       </div>
     </section>
 
-    <!-- MAIN TABS -->
     <div class="tabs">
       <button class="tab-btn active" type="button" data-main-tab="suitability">Suitability</button>
       <button class="tab-btn" type="button" data-main-tab="cfu">CFU Calculator</button>
     </div>
 
-    <!-- SUITABILITY PANEL -->
     <section class="panel active" id="panel-suitability">
       <section class="card" style="padding: var(--space-3);">
         <div class="suit-tabs">
-          <button class="suit-tab-btn active" type="button" data-suit-tab="SA">S. aureus</button>
-          <button class="suit-tab-btn" type="button" data-suit-tab="EC">E. coli</button>
-          <button class="suit-tab-btn" type="button" data-suit-tab="PA">P. aeruginosa</button>
-          <button class="suit-tab-btn" type="button" data-suit-tab="CA">C. albicans</button>
-          <button class="suit-tab-btn" type="button" data-suit-tab="AB">A. brasiliensis</button>
+          <button class="suit-tab-btn active" type="button" data-suit-tab="SA">SA</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="EC">EC</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="PA">PA</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="CA">CA</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="AB">AB</button>
         </div>
         <div id="suitabilitySubtabs"></div>
       </section>
@@ -128,7 +135,6 @@
       </section>
     </section>
 
-    <!-- CFU CALCULATOR PANEL -->
     <section class="panel" id="panel-cfu">
       <section class="card">
         <div class="grid two">
@@ -186,9 +192,6 @@
   <script>
 const $ = (id) => document.getElementById(id);
 
-// ============================================
-// SHARED STATE & UTILITIES
-// ============================================
 function setTheme() {
   const root = document.documentElement;
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -218,9 +221,6 @@ function nowISO() { return new Date().toISOString(); }
 function nowLocale() { return new Date().toLocaleString(); }
 function sanitizeFilename(s) { return s.replace(/[^a-z0-9._-]/gi, '_'); }
 
-// ============================================
-// SUITABILITY CALCULATOR (Tab 1)
-// ============================================
 const suitKeys = ['SA','EC','PA','CA','AB'];
 const organismNames = { SA: 'Staphylococcus aureus', EC: 'Escherichia coli', PA: 'Pseudomonas aeruginosa', CA: 'Candida albicans', AB: 'Aspergillus brasiliensis' };
 const suitState = { activeSuitTab: 'SA', suit: {} };
@@ -442,9 +442,6 @@ function setSuitTab(key) {
   document.querySelectorAll('[data-suit-panel]').forEach((panel) => panel.classList.toggle('active', panel.dataset.suitPanel === key));
 }
 
-// ============================================
-// CFU CALCULATOR (Tab 2) - unchanged
-// ============================================
 const cfuEl = {
   count1: $('cfu-count1'), count2: $('cfu-count2'), dilution: $('cfu-dilution'),
   error: $('cfu-error'), avgValue: $('cfu-avgValue'), cfuValue: $('cfu-cfuValue'),
@@ -534,9 +531,6 @@ function clearCFU() {
   cfuEl.count1.focus();
 }
 
-// ============================================
-// SAVE SUMMARY - Single mobile-friendly text file
-// ============================================
 function gatherSuitabilityData() {
   const organisms = {};
   suitKeys.forEach(key => {
@@ -615,7 +609,7 @@ function buildSummaryObject() {
 
 function generateTextReport(data) {
   const lines = [];
-  const S = '  '; // indent
+  const S = '  ';
 
   lines.push('Micro Lab Calculator - Suitability Report');
   lines.push('==========================================');
@@ -670,9 +664,6 @@ function saveSummary() {
   downloadFile(textContent, sampleId + '_suitability_' + ts + '.txt', 'text/plain');
 }
 
-// ============================================
-// MAIN TAB SWITCHING
-// ============================================
 function setMainTab(name) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mainTab === name));
   document.getElementById('panel-suitability').classList.toggle('active', name === 'suitability');
@@ -683,16 +674,12 @@ function setMainTab(name) {
   if (name === 'suitability') setSuitTab(suitState.activeSuitTab);
 }
 
-// ============================================
-// INIT
-// ============================================
 function init() {
   document.querySelector('[data-theme-toggle]').addEventListener('click', toggleTheme);
   document.getElementById('saveBtn').addEventListener('click', saveSummary);
   document.querySelectorAll('[data-main-tab]').forEach(btn => btn.addEventListener('click', () => setMainTab(btn.dataset.mainTab)));
   document.querySelectorAll('[data-suit-tab]').forEach(btn => btn.addEventListener('click', () => setSuitTab(btn.dataset.suitTab)));
 
-  // CFU listeners
   [cfuEl.count1, cfuEl.count2, cfuEl.dilution].forEach(input => {
     input.addEventListener('input', calculateCFU);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') calculateCFU(); });
