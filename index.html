@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#01696f" />
-  <title>CFU Plate Calculator</title>
+  <title>Micro Lab Calculator — Suitability &amp; CFU</title>
   <style>
     :root {
       --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
@@ -14,48 +14,54 @@
       --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
       --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
       --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
-      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 999px;
       --color-bg: #f7f6f2; --color-surface: #fbfbf9; --color-surface-2: #f3f0ec; --color-border: #d4d1ca;
       --color-text: #28251d; --color-text-muted: #6f6d67; --color-primary: #01696f; --color-primary-hover: #0c4e54;
-      --color-primary-soft: #d9eceb; --color-warning: #964219; --color-success: #437a22; --shadow-md: 0 12px 32px rgba(25,27,28,.12);
+      --color-primary-soft: #d9eceb; --color-warning: #964219; --color-success: #437a22; --color-danger: #a12c7b; --shadow-md: 0 12px 32px rgba(25,27,28,.12);
       --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
     [data-theme="dark"] {
       --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #22211f; --color-border: #393836;
       --color-text: #ece8df; --color-text-muted: #a9a399; --color-primary: #4f98a3; --color-primary-hover: #68b4bf;
-      --color-primary-soft: #203538; --color-warning: #d18a63; --color-success: #87b96a; --shadow-md: 0 12px 32px rgba(0,0,0,.35);
+      --color-primary-soft: #203538; --color-warning: #d18a63; --color-success: #87b96a; --color-danger: #d163a7; --shadow-md: 0 12px 32px rgba(0,0,0,.35);
     }
     * { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
     body {
-      margin: 0; min-height: 100dvh; font-family: var(--font-body); background:
-      radial-gradient(circle at top, rgba(1,105,111,.08), transparent 28%), var(--color-bg);
+      margin: 0; min-height: 100dvh; font-family: var(--font-body);
+      background: radial-gradient(circle at top, rgba(1,105,111,.08), transparent 28%), var(--color-bg);
       color: var(--color-text); line-height: 1.5;
     }
-    button, input { font: inherit; }
-    .app { max-width: 720px; margin: 0 auto; padding: max(env(safe-area-inset-top), var(--space-6)) var(--space-4) max(env(safe-area-inset-bottom), var(--space-6)); }
-    .topbar { display: flex; justify-content: space-between; align-items: start; gap: var(--space-4); margin-bottom: var(--space-6); }
-    .title { font-size: var(--text-xl); line-height: 1.1; margin: 0 0 var(--space-2); }
-    .subtitle { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); max-width: 36ch; }
-    .theme-toggle { min-width: 48px; min-height: 48px; border-radius: var(--radius-full, 999px); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); }
-    .card {
-      background: color-mix(in srgb, var(--color-surface) 92%, white 8%);
-      border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: var(--shadow-md);
-      padding: var(--space-5); margin-bottom: var(--space-5);
-    }
+    button, input, select { font: inherit; }
+    .app { max-width: 920px; margin: 0 auto; padding: max(env(safe-area-inset-top), var(--space-6)) var(--space-4) max(env(safe-area-inset-bottom), var(--space-6)); }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); flex-wrap: wrap; }
+    .topbar-left { display: flex; flex-direction: column; gap: var(--space-2); }
+    .topbar-right { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .title { font-size: var(--text-xl); line-height: 1.1; margin: 0; }
+    .subtitle { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); max-width: 56ch; }
+    .sample-id-wrap { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .sample-id-wrap label { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); }
+    .sample-id-wrap input { width: auto; min-width: 180px; min-height: 40px; padding: 0 var(--space-3); font-size: var(--text-base); }
+    .theme-toggle, .save-btn { min-width: 48px; min-height: 48px; border-radius: var(--radius-full); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-weight: 700; }
+    .save-btn { padding: 0 var(--space-4); min-width: auto; }
+    .save-btn:hover { background: var(--color-primary-soft); border-color: var(--color-primary); }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-5); }
+    .tab-btn { min-height: 48px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-weight: 700; }
+    .tab-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn 120ms ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .card { background: color-mix(in srgb, var(--color-surface) 92%, white 8%); border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); padding: var(--space-5); margin-bottom: var(--space-5); }
     .grid { display: grid; gap: var(--space-4); }
-    @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+    .grid.two { grid-template-columns: 1fr; }
+    .grid.three { grid-template-columns: 1fr; }
+    @media (min-width: 700px) { .grid.two { grid-template-columns: 1fr 1fr; } .grid.three { grid-template-columns: repeat(3, 1fr); } }
     label { display: grid; gap: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); }
-    select { width: 100%; min-height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-lg); }
-    select:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent); outline-offset: 2px; }
-    input {
-      width: 100%; min-height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-lg);
-      border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-lg);
-    }
-    input:focus-visible, button:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent); outline-offset: 2px; }
+    input, select { width: 100%; min-height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: var(--text-lg); }
+    select:focus-visible, input:focus-visible, button:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent); outline-offset: 2px; }
     .dilution-wrap { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: var(--space-3); }
     .prefix { min-height: 52px; display: grid; place-items: center; padding: 0 var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface-2); border: 1px solid var(--color-border); font-weight: 700; }
-    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-5); }
+    .actions { display: grid; grid-template-columns: 1fr; gap: var(--space-3); margin-top: var(--space-5); }
     .btn { min-height: 52px; border: 0; border-radius: var(--radius-lg); font-weight: 700; }
     .btn-primary { background: var(--color-primary); color: #fff; }
     .btn-secondary { background: var(--color-surface-2); color: var(--color-text); border: 1px solid var(--color-border); }
@@ -63,253 +69,646 @@
     .stat { background: var(--color-surface-2); border-radius: var(--radius-lg); padding: var(--space-4); border: 1px solid var(--color-border); }
     .stat-label { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-1); }
     .stat-value { font-size: clamp(1.5rem, 1.2rem + 2vw, 2.2rem); font-weight: 800; letter-spacing: -0.03em; }
-    .formula { font-size: var(--text-sm); color: var(--color-text-muted); }
-    .history-list { display: grid; gap: var(--space-3); }
-    .history-item { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); }
-    .history-head { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); }
+    .formula, .footnote { font-size: var(--text-sm); color: var(--color-text-muted); }
+    .history-list, .stack { display: grid; gap: var(--space-3); }
+    .history-item, .group { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); }
+    .history-head, .row-head { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); }
     .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 var(--space-3); border-radius: 999px; background: var(--color-primary-soft); color: var(--color-primary); font-size: var(--text-xs); font-weight: 700; }
-    .muted { color: var(--color-text-muted); }
     .mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    .muted { color: var(--color-text-muted); }
     .error { color: var(--color-warning); font-size: var(--text-sm); min-height: 1.5em; margin-top: var(--space-3); }
-    .footnote { font-size: var(--text-xs); color: var(--color-text-muted); }
+    .status-pass { color: var(--color-success); font-weight: 800; }
+    .status-fail { color: var(--color-danger); font-weight: 800; }
+    .small { font-size: var(--text-xs); }
+    .suit-subpanel { display: none; }
+    .suit-subpanel.active { display: block; }
+    .suit-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3); margin-bottom: var(--space-5); }
+    .suit-tab-btn { min-height: 48px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-weight: 700; }
+    .suit-tab-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
   </style>
 </head>
 <body>
   <main class="app">
     <section class="topbar">
-      <div>
-        <h1 class="title">CFU Plate Calculator</h1>
-        <p class="subtitle">Enter two plate counts and the dilution exponent. It returns the average count, CFU/mL, and log10 in the same format you use at the bench.</p>
+      <div class="topbar-left">
+        <h1 class="title">Micro Lab Calculator</h1>
+        <p class="subtitle" id="subtitleText">Suitability: Compare neutralized test samples to positive control. Recovery must be 50-200% per USP 61 / 51.</p>
+        <div class="sample-id-wrap">
+          <label for="sampleId">Sample ID</label>
+          <input id="sampleId" type="text" placeholder="e.g. LOT-2026-042" autocomplete="off" />
+        </div>
       </div>
-      <button class="theme-toggle" type="button" aria-label="Toggle theme" data-theme-toggle>◐</button>
+      <div class="topbar-right">
+        <button class="save-btn" type="button" id="saveBtn" aria-label="Save summary">Save Summary</button>
+        <button class="theme-toggle" type="button" aria-label="Toggle theme" data-theme-toggle>◐</button>
+      </div>
     </section>
 
-    <section class="card">
-      <div class="grid two">
-        <label>
-          Plate count 1
-          <input id="count1" inputmode="decimal" placeholder="e.g. 42" autocomplete="off" />
-        </label>
-        <label>
-          Plate count 2
-          <input id="count2" inputmode="decimal" placeholder="e.g. 46" autocomplete="off" />
-        </label>
-      </div>
-      <div class="grid" style="margin-top: var(--space-4);">
-        <label>
-          Dilution exponent
-          <div class="dilution-wrap">
-            <div class="prefix">10^</div>
-            <select id="dilution" autocomplete="off"></select>
-          </div>
-        </label>
-      </div>
-      <div class="actions">
-        <button class="btn btn-secondary" id="clearBtn" type="button">Clear</button>
-      </div>
-      <div class="error" id="error"></div>
+    <!-- MAIN TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" type="button" data-main-tab="suitability">Suitability</button>
+      <button class="tab-btn" type="button" data-main-tab="cfu">CFU Calculator</button>
+    </div>
+
+    <!-- SUITABILITY PANEL -->
+    <section class="panel active" id="panel-suitability">
+      <section class="card" style="padding: var(--space-3);">
+        <div class="suit-tabs">
+          <button class="suit-tab-btn active" type="button" data-suit-tab="SA">S. aureus</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="EC">E. coli</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="PA">P. aeruginosa</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="CA">C. albicans</button>
+          <button class="suit-tab-btn" type="button" data-suit-tab="AB">A. brasiliensis</button>
+        </div>
+        <div id="suitabilitySubtabs"></div>
+      </section>
+      <section class="card" style="margin-top:1rem;">
+        <div class="row-head"><strong>Cross-organism dilution summary</strong><span id="globalSuitStatus" class="small muted">Waiting for data</span></div>
+        <div class="small mono" id="globalSuitDetail">Fill all five organisms to compare the most common lowest passing dilution.</div>
+      </section>
     </section>
 
-    <section class="card">
-      <div class="results">
-        <div class="stat">
-          <div class="stat-label">Average count</div>
-          <div class="stat-value mono" id="avgValue">—</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">CFU/mL</div>
-          <div class="stat-value mono" id="cfuValue">—</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">log10</div>
-          <div class="stat-value mono" id="logValue">—</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Log Reduction</div>
+    <!-- CFU CALCULATOR PANEL -->
+    <section class="panel" id="panel-cfu">
+      <section class="card">
+        <div class="grid two">
           <label>
-            <input id="logSubtractInput" inputmode="decimal" placeholder="Enter number, result updates live" autocomplete="off" />
+            Plate count 1
+            <input id="cfu-count1" inputmode="decimal" placeholder="e.g. 42" autocomplete="off" />
           </label>
-                    <div class="stat-value mono" id="adjustedLogValue">—</div>
+          <label>
+            Plate count 2
+            <input id="cfu-count2" inputmode="decimal" placeholder="e.g. 46" autocomplete="off" />
+          </label>
         </div>
-      </div>
-      <p class="formula" id="formulaText">Formula: average = (count1 + count2) / 2, CFU/mL = average ÷ 10^dilution, log10 = log10(CFU/mL).</p>
-    </section>
+        <div class="grid" style="margin-top: var(--space-4);">
+          <label>
+            Dilution exponent
+            <div class="dilution-wrap">
+              <div class="prefix">10^</div>
+              <select id="cfu-dilution" autocomplete="off"></select>
+            </div>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" id="cfu-clearBtn" type="button">Clear</button>
+        </div>
+        <div class="error" id="cfu-error"></div>
+      </section>
 
-    <section class="card">
-      <div class="history-head">
-        <strong>Recent calculations</strong>
-        <span class="pill">Local only</span>
-      </div>
-      <div class="history-list" id="historyList">
-        <div class="muted">No calculations yet.</div>
-      </div>
-      <p class="footnote">Rounding rule: the duplicate plate average is rounded per your USP-style rule before CFU/mL is calculated, and log10 is shown to the hundredth. This file works offline in a browser.</p>
+      <section class="card">
+        <div class="results">
+          <div class="stat"><div class="stat-label">Average count</div><div class="stat-value mono" id="cfu-avgValue">—</div></div>
+          <div class="stat"><div class="stat-label">CFU/mL</div><div class="stat-value mono" id="cfu-cfuValue">—</div></div>
+          <div class="stat"><div class="stat-label">log10</div><div class="stat-value mono" id="cfu-logValue">—</div></div>
+          <div class="stat">
+            <div class="stat-label">Log Reduction</div>
+            <label>
+              <input id="cfu-logSubtractInput" inputmode="decimal" placeholder="Enter number, result updates live" autocomplete="off" />
+            </label>
+            <div class="stat-value mono" id="cfu-adjustedLogValue">—</div>
+          </div>
+        </div>
+        <p class="formula" id="cfu-formulaText">Formula: average = (count1 + count2) / 2, CFU/mL = average / 10^dilution, log10 = log10(CFU/mL).</p>
+      </section>
+
+      <section class="card">
+        <div class="history-head">
+          <strong>Recent calculations</strong>
+          <span class="pill">Local only</span>
+        </div>
+        <div class="history-list" id="cfu-historyList"><div class="muted">No calculations yet.</div></div>
+        <p class="footnote">Rounding rule: the duplicate plate average is rounded per USP-style rule before CFU/mL is calculated, and log10 is shown to the hundredth. This file works offline in a browser.</p>
+      </section>
     </section>
   </main>
 
   <script>
-    const $ = (id) => document.getElementById(id);
-    const el = {
-      count1: $('count1'), count2: $('count2'), dilution: $('dilution'), error: $('error'),
-      avgValue: $('avgValue'), cfuValue: $('cfuValue'), logValue: $('logValue'), adjustedLogValue: $('adjustedLogValue'), dilution: $('dilution'), logSubtractInput: $('logSubtractInput'), formulaText: $('formulaText'), historyList: $('historyList')
+const $ = (id) => document.getElementById(id);
+
+// ============================================
+// SHARED STATE & UTILITIES
+// ============================================
+function setTheme() {
+  const root = document.documentElement;
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+}
+function toggleTheme() {
+  const root = document.documentElement;
+  root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function roundUSP(v) { return Math.round(v); }
+function roundFinalPercent(v) { return Math.round(v); }
+function fmtNumber(n) {
+  if (!Number.isFinite(n)) return '—';
+  if (Number.isInteger(n)) return String(n);
+  return Number(n.toFixed(2)).toString();
+}
+function fmtPercent(n) { return Number.isFinite(n) ? roundFinalPercent(n) + '%' : '—'; }
+function parseNum(v) { const s = v.trim(); if (s === '') return null; const n = Number(s.replace(/,/g, '')); return Number.isNaN(n) ? NaN : n; }
+function avgPair(a, b) { if (a === null || b === null) return null; if (Number.isNaN(a) || Number.isNaN(b)) return NaN; return roundUSP((a + b) / 2); }
+function fmtSciFromRounded(n) { if (!Number.isFinite(n) || n <= 0) return '—'; const exp = Math.floor(Math.log10(n)); const mant = n / (10 ** exp); return mant.toFixed(1) + ' x 10^' + exp; }
+function setRecoveryStatus(node, passed, waitingText = 'Waiting for data') {
+  if (passed === null) { node.className = 'small muted'; node.textContent = waitingText; return; }
+  node.className = passed ? 'small status-pass' : 'small status-fail';
+  node.textContent = passed ? 'PASS 50-200% recovery' : 'FAIL 50-200% recovery';
+}
+function nowISO() { return new Date().toISOString(); }
+function nowLocale() { return new Date().toLocaleString(); }
+function sanitizeFilename(s) { return s.replace(/[^a-z0-9._-]/gi, '_'); }
+
+// ============================================
+// SUITABILITY CALCULATOR (Tab 1)
+// ============================================
+const suitKeys = ['SA','EC','PA','CA','AB'];
+const organismNames = { SA: 'Staphylococcus aureus', EC: 'Escherichia coli', PA: 'Pseudomonas aeruginosa', CA: 'Candida albicans', AB: 'Aspergillus brasiliensis' };
+const suitState = { activeSuitTab: 'SA', suit: {} };
+
+function renderSuitabilityTabs() {
+  const host = $('suitabilitySubtabs');
+  host.innerHTML = suitKeys.map((key, idx) => `
+    <section class="suit-subpanel ${idx === 0 ? 'active' : ''}" data-suit-panel="${key}">
+      <section class="card">
+        <div class="stack">
+          <div class="group">
+            <div class="row-head"><strong>Positive control <em>(${organismNames[key]})</em></strong><span class="pill">Reference</span></div>
+            <div class="grid two">
+              <label>Plate 1<input id="${key}-pos1" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 42"></label>
+              <label>Plate 2<input id="${key}-pos2" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 46"></label>
+            </div>
+          </div>
+          <div class="group">
+            <div class="row-head"><strong>Neutralizer control</strong><span class="pill">Control</span></div>
+            <div class="grid two">
+              <label>Plate 1<input id="${key}-neu1" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 40"></label>
+              <label>Plate 2<input id="${key}-neu2" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 44"></label>
+            </div>
+          </div>
+          <div class="group">
+            <div class="row-head"><strong>Test sample 10^-1</strong><span id="${key}-s1pill" class="pill">Sample</span></div>
+            <div class="grid two">
+              <label>Plate 1<input id="${key}-t1a" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 38"></label>
+              <label>Plate 2<input id="${key}-t1b" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 41"></label>
+            </div>
+          </div>
+          <div class="group">
+            <div class="row-head"><strong>Test sample 10^-2</strong><span id="${key}-s2pill" class="pill">Sample</span></div>
+            <div class="grid two">
+              <label>Plate 1<input id="${key}-t2a" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 4"></label>
+              <label>Plate 2<input id="${key}-t2b" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 5"></label>
+            </div>
+          </div>
+          <div class="group">
+            <div class="row-head"><strong>Test sample 10^-3</strong><span id="${key}-s3pill" class="pill">Sample</span></div>
+            <div class="grid two">
+              <label>Plate 1<input id="${key}-t3a" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 0"></label>
+              <label>Plate 2<input id="${key}-t3b" inputmode="decimal" autocomplete="off" step="1" placeholder="e.g. 1"></label>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" type="button" data-suit-clear="${key}">Clear Samples</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="grid three">
+          <div class="stat">
+            <div class="stat-label">Positive control average</div>
+            <div class="stat-value mono" id="${key}-posAvg">—</div>
+            <div class="small muted" id="${key}-posCfu">CFU/mL baseline</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Neutralizer control average</div>
+            <div class="stat-value mono" id="${key}-neuAvg">—</div>
+            <div class="small muted" id="${key}-neuCfu">CFU/mL baseline</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Neutralizer recovery</div>
+            <div class="stat-value mono" id="${key}-neuRecovery">—</div>
+            <div class="small" id="${key}-neuStatus">Enter control values</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="stack">
+          <div class="group">
+            <div class="row-head"><strong>10^-1</strong><span id="${key}-s1status" class="small muted">Waiting for data</span></div>
+            <div class="small mono" id="${key}-s1detail">—</div>
+          </div>
+          <div class="group">
+            <div class="row-head"><strong>10^-2</strong><span id="${key}-s2status" class="small muted">Waiting for data</span></div>
+            <div class="small mono" id="${key}-s2detail">—</div>
+          </div>
+          <div class="group">
+            <div class="row-head"><strong>10^-3</strong><span id="${key}-s3status" class="small muted">Waiting for data</span></div>
+            <div class="small mono" id="${key}-s3detail">—</div>
+          </div>
+        </div>
+        <div class="group" style="margin-top:1rem;">
+          <div class="row-head"><strong>Lowest passing dilution</strong><span id="${key}-lowestStatus" class="small muted">Waiting for data</span></div>
+          <div class="small mono" id="${key}-lowestDetail">—</div>
+        </div>
+      </section>
+    </section>
+  `).join('');
+
+  suitKeys.forEach((key) => {
+    const refs = suitState.suit[key] = {
+      pos1: $(`${key}-pos1`), pos2: $(`${key}-pos2`),
+      neu1: $(`${key}-neu1`), neu2: $(`${key}-neu2`),
+      t1a: $(`${key}-t1a`), t1b: $(`${key}-t1b`),
+      t2a: $(`${key}-t2a`), t2b: $(`${key}-t2b`),
+      t3a: $(`${key}-t3a`), t3b: $(`${key}-t3b`),
+      posAvg: $(`${key}-posAvg`), posCfu: $(`${key}-posCfu`),
+      neuAvg: $(`${key}-neuAvg`), neuCfu: $(`${key}-neuCfu`),
+      neuRecovery: $(`${key}-neuRecovery`), neuStatus: $(`${key}-neuStatus`),
+      s1status: $(`${key}-s1status`), s1detail: $(`${key}-s1detail`), s1pill: $(`${key}-s1pill`),
+      s2status: $(`${key}-s2status`), s2detail: $(`${key}-s2detail`), s2pill: $(`${key}-s2pill`),
+      s3status: $(`${key}-s3status`), s3detail: $(`${key}-s3detail`), s3pill: $(`${key}-s3pill`),
+      lowestStatus: $(`${key}-lowestStatus`), lowestDetail: $(`${key}-lowestDetail`)
     };
-
-    const state = { history: [] };
-
-
-    function fillDilutionOptions() {
-      const sel = el.dilution;
-      for (let i = -10; i <= 10; i++) {
-        const opt = document.createElement('option');
-        opt.value = String(i);
-        opt.textContent = String(i);
-        sel.appendChild(opt);
-      }
-      sel.value = '-1';
-    }
-
-    function setTheme() {
-      const root = document.documentElement;
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-    }
-
-    function toggleTheme() {
-      const root = document.documentElement;
-      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    }
-
-    function roundUSP(value) {
-      return Math.round(value);
-    }
-
-    function fmtNumber(n) {
-      if (Number.isInteger(n)) return String(n);
-      return Number(n.toFixed(2)).toString();
-    }
-
-    function fmtSciFromRounded(n) {
-      const exp = Math.floor(Math.log10(n));
-      const mant = n / (10 ** exp);
-      return `${mant.toFixed(1)} × 10^${exp}`;
-    }
-
-    let lastCalculation = null;
-
-    function updateAdjustedResult(saveHistory = false) {
-      if (!lastCalculation) {
-        el.adjustedLogValue.textContent = '—';
-        return;
-      }
-      const subtractRaw = el.logSubtractInput.value.trim();
-      if (subtractRaw === '') {
-        el.adjustedLogValue.textContent = '—';
-        el.formulaText.textContent = `Average = (${fmtNumber(lastCalculation.c1)} + ${fmtNumber(lastCalculation.c2)}) / 2 = ${fmtNumber(lastCalculation.rawAvg)} → ${lastCalculation.avgText}; CFU/mL = ${lastCalculation.avgText} ÷ 10^${lastCalculation.d} = ${lastCalculation.cfuText}; log10 = ${lastCalculation.logText}.`;
-        return;
-      }
-      const enteredValue = Number(subtractRaw.replace(/,/g, ''));
-      if (Number.isNaN(enteredValue)) {
-        el.adjustedLogValue.textContent = '—';
-        return;
-      }
-      const adjusted = enteredValue - lastCalculation.log10;
-      const adjustedText = Number(adjusted.toFixed(2)).toFixed(2);
-      el.adjustedLogValue.textContent = adjustedText;
-      el.formulaText.textContent = `Average = (${fmtNumber(lastCalculation.c1)} + ${fmtNumber(lastCalculation.c2)}) / 2 = ${fmtNumber(lastCalculation.rawAvg)} → ${lastCalculation.avgText}; CFU/mL = ${lastCalculation.avgText} ÷ 10^${lastCalculation.d} = ${lastCalculation.cfuText}; log10 = ${lastCalculation.logText}; log reduction = ${fmtNumber(enteredValue)} - ${lastCalculation.logText} = ${adjustedText}.`;
-      if (saveHistory) {
-        state.history.unshift({ input: `${fmtNumber(lastCalculation.c1)}/${fmtNumber(lastCalculation.c2)} ${lastCalculation.d}`, avg: lastCalculation.avgText, cfu: lastCalculation.cfuText, log: lastCalculation.logText, adjusted: adjustedText, ts: new Date().toLocaleString() });
-        state.history = state.history.slice(0, 8);
-        renderHistory();
-      }
-    }
-
-    function calculate() {
-      const c1 = Number(el.count1.value.replace(/,/g, ''));
-      const c2 = Number(el.count2.value.replace(/,/g, ''));
-      const d = Number(el.dilution.value);
-
-      if ([el.count1.value.trim(), el.count2.value.trim()].some(v => v === '')) {
-        el.error.textContent = '';
-        return;
-      }
-      if ([c1, c2, d].some(v => Number.isNaN(v))) {
-        el.error.textContent = 'Enter valid numbers in all three fields.';
-        return;
-      }
-      if (d < -10 || d > 10) {
-        el.error.textContent = 'Dilution exponent must be between -10 and 10.';
-        return;
-      }
-      if (c1 < 0 || c2 < 0) {
-        el.error.textContent = 'Plate counts must be zero or greater.';
-        return;
-      }
-
-      el.error.textContent = '';
-      const rawAvg = (c1 + c2) / 2;
-      const avg = roundUSP(rawAvg);
-      const cfu = avg / (10 ** d);
-      const log10 = Math.log10(cfu);
-      const avgText = fmtNumber(avg);
-      const cfuText = fmtSciFromRounded(cfu);
-      const logText = Number(log10.toFixed(2)).toFixed(2);
-
-      lastCalculation = { c1, c2, d, rawAvg, avgText, cfuText, log10, logText };
-
-      el.avgValue.textContent = avgText;
-      el.cfuValue.textContent = cfuText;
-      el.logValue.textContent = logText;
-      el.adjustedLogValue.textContent = '—';
-      el.formulaText.textContent = `Average = (${fmtNumber(c1)} + ${fmtNumber(c2)}) / 2 = ${fmtNumber(rawAvg)} → ${avgText}; CFU/mL = ${avgText} ÷ 10^${d} = ${cfuText}; log10 = ${logText}.`;
-
-      state.history.unshift({ input: `${fmtNumber(c1)}/${fmtNumber(c2)} ${d}`, avg: avgText, cfu: cfuText, log: logText, adjusted: '—', ts: new Date().toLocaleString() });
-      state.history = state.history.slice(0, 8);
-      renderHistory();
-      updateAdjustedResult(false);
-    }
-
-    function renderHistory() {
-      if (!state.history.length) {
-        el.historyList.innerHTML = '<div class="muted">No calculations yet.</div>';
-        return;
-      }
-      el.historyList.innerHTML = state.history.map(item => `
-        <article class="history-item">
-          <div class="history-head"><strong class="mono">${item.input}</strong><span class="muted">${item.ts}</span></div>
-          <div class="muted mono">Avg ${item.avg} · CFU/mL ${item.cfu} · log10 ${item.log}${item.adjusted !== '—' ? ` · adjusted ${item.adjusted}` : ''}</div>
-        </article>
-      `).join('');
-    }
-
-    function clearAll() {
-      el.count1.value = '';
-      el.count2.value = '';
-      el.dilution.value = '';
-      el.error.textContent = '';
-      el.avgValue.textContent = '—';
-      el.cfuValue.textContent = '—';
-      el.logValue.textContent = '—';
-      el.adjustedLogValue.textContent = '—';
-      el.logSubtractInput.value = '';
-      el.formulaText.textContent = 'Formula: average = (count1 + count2) / 2, CFU/mL = average ÷ 10^dilution, log10 = log10(CFU/mL).';
-      el.count1.focus();
-    }
-
-    document.querySelector('[data-theme-toggle]').addEventListener('click', toggleTheme);
-    $('clearBtn').addEventListener('click', clearAll);
-    [el.count1, el.count2, el.dilution].forEach(input => {
-      input.addEventListener('input', () => calculate());
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') calculate();
-      });
+    ['pos1','pos2','neu1','neu2','t1a','t1b','t2a','t2b','t3a','t3b'].forEach((k) => {
+      const el = refs[k];
+      el.addEventListener('input', () => calculateSuitability(key));
+      el.addEventListener('change', () => calculateSuitability(key));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculateSuitability(key); });
     });
-    el.logSubtractInput.addEventListener('input', () => updateAdjustedResult(false));
-    el.logSubtractInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') updateAdjustedResult(true);
-    });
+  });
 
-    fillDilutionOptions();
-    setTheme();
-  </script>
+  $('suitabilitySubtabs').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-suit-clear]');
+    if (btn) { e.preventDefault(); e.stopPropagation(); clearSuitability(btn.dataset.suitClear); }
+  });
+
+  calculateSuitability('SA');
+  updateGlobalSuitabilitySummary();
+}
+
+function updateSuitabilityRow(avg, positiveAvg, detailNode, statusNode, pillNode) {
+  if (avg === null || !Number.isFinite(positiveAvg) || positiveAvg <= 0) {
+    detailNode.textContent = '—'; pillNode.textContent = 'Sample'; pillNode.className = 'pill'; setRecoveryStatus(statusNode, null); return null;
+  }
+  const recovery = (avg / positiveAvg) * 100;
+  const finalPct = roundFinalPercent(recovery);
+  const passed = finalPct >= 50 && finalPct <= 200;
+  detailNode.textContent = 'Average ' + fmtNumber(avg) + ' | Recovery ' + finalPct + '% vs positive';
+  pillNode.textContent = passed ? 'PASS' : 'FAIL';
+  pillNode.className = 'pill ' + (passed ? 'status-pass' : 'status-fail');
+  setRecoveryStatus(statusNode, passed);
+  return passed;
+}
+
+function calculateSuitability(key = 'SA') {
+  const refs = suitState.suit[key];
+  const posAvg = avgPair(parseNum(refs.pos1.value), parseNum(refs.pos2.value));
+  const neuAvg = avgPair(parseNum(refs.neu1.value), parseNum(refs.neu2.value));
+  const s1Avg  = avgPair(parseNum(refs.t1a.value),  parseNum(refs.t1b.value));
+  const s2Avg  = avgPair(parseNum(refs.t2a.value),  parseNum(refs.t2b.value));
+  const s3Avg  = avgPair(parseNum(refs.t3a.value),  parseNum(refs.t3b.value));
+
+  refs.posAvg.textContent = posAvg === null ? '—' : fmtNumber(posAvg);
+  refs.posCfu.textContent = posAvg === null ? 'CFU/mL baseline' : 'CFU/mL baseline ' + fmtNumber(posAvg);
+  refs.neuAvg.textContent = neuAvg === null ? '—' : fmtNumber(neuAvg);
+  refs.neuCfu.textContent = neuAvg === null ? 'CFU/mL baseline' : 'CFU/mL baseline ' + fmtNumber(neuAvg);
+
+  if (posAvg === null || posAvg <= 0 || neuAvg === null) {
+    refs.neuRecovery.textContent = '—';
+    setRecoveryStatus(refs.neuStatus, null, 'Enter control values');
+  } else {
+    const neuPct = (neuAvg / posAvg) * 100;
+    const neuFinal = roundFinalPercent(neuPct);
+    const neuPassed = neuFinal >= 50 && neuFinal <= 200;
+    refs.neuRecovery.textContent = fmtPercent(neuPct);
+    refs.neuStatus.className = neuPassed ? 'small status-pass' : 'small status-fail';
+    refs.neuStatus.textContent = neuPassed ? 'PASS 50-200%' : 'FAIL 50-200%';
+  }
+
+  const p1 = updateSuitabilityRow(s1Avg, posAvg, refs.s1detail, refs.s1status, refs.s1pill);
+  const p2 = updateSuitabilityRow(s2Avg, posAvg, refs.s2detail, refs.s2status, refs.s2pill);
+  const p3 = updateSuitabilityRow(s3Avg, posAvg, refs.s3detail, refs.s3status, refs.s3pill);
+
+  const passing = [{d:-1,p:p1},{d:-2,p:p2},{d:-3,p:p3}].filter(x => x.p).sort((a,b) => b.d - a.d);
+  if (!passing.length) {
+    refs.lowestStatus.className = 'small muted'; refs.lowestStatus.textContent = 'No passes yet'; refs.lowestDetail.textContent = '—';
+  } else {
+    const best = passing[0];
+    refs.lowestStatus.className = 'small status-pass';
+    refs.lowestStatus.textContent = 'PASS at 10^' + best.d;
+    refs.lowestDetail.textContent = 'Lowest passing dilution in ' + organismNames[key] + ': 10^' + best.d;
+  }
+  updateGlobalSuitabilitySummary();
+}
+
+function clearSuitability(key = 'SA') {
+  const refs = suitState.suit[key];
+  ['t1a','t1b','t2a','t2b','t3a','t3b'].forEach((k) => { if (refs[k]) refs[k].value = ''; });
+  calculateSuitability(key);
+}
+
+function updateGlobalSuitabilitySummary() {
+  const gs = $('globalSuitStatus'), gd = $('globalSuitDetail');
+  const results = [];
+  suitKeys.forEach((key) => {
+    const refs = suitState.suit[key];
+    const posAvg = avgPair(parseNum(refs.pos1.value), parseNum(refs.pos2.value));
+    if (!(Number.isFinite(posAvg) && posAvg > 0)) return;
+    const rows = [
+      {d:-1, avg: avgPair(parseNum(refs.t1a.value), parseNum(refs.t1b.value))},
+      {d:-2, avg: avgPair(parseNum(refs.t2a.value), parseNum(refs.t2b.value))},
+      {d:-3, avg: avgPair(parseNum(refs.t3a.value), parseNum(refs.t3b.value))}
+    ].filter(x => x.avg !== null && Number.isFinite(x.avg));
+    const passing = rows.filter(x => {
+      const pct = roundFinalPercent((x.avg / posAvg) * 100);
+      return pct >= 50 && pct <= 200;
+    }).sort((a,b) => b.d - a.d);
+    if (passing.length) results.push({key, d: passing[0].d});
+  });
+  if (!results.length) { gs.className = 'small muted'; gs.textContent = 'No global passes yet'; gd.textContent = 'None of SA, EC, PA, CA, or AB has a passing dilution yet.'; return; }
+  const counts = {}; results.forEach(r => counts[r.d] = (counts[r.d] || 0) + 1);
+  const bestCount = Math.max(...Object.values(counts));
+  const bestDs = Object.keys(counts).filter(k => counts[k] === bestCount).map(Number).sort((a,b) => a - b);
+  const chosen = bestDs[0];
+  const labels = { '-1': '10^-1', '-2': '10^-2', '-3': '10^-3' };
+  gs.className = 'small status-pass'; gs.textContent = 'Most common lowest pass: ' + labels[String(chosen)];
+  gd.textContent = 'Across SA, EC, PA, CA, and AB, the most common lowest passing dilution is ' + labels[String(chosen)] + ' (' + bestCount + ' of ' + results.length + ' organisms).';
+}
+
+function setSuitTab(key) {
+  suitState.activeSuitTab = key;
+  document.querySelectorAll('[data-suit-tab]').forEach((btn) => btn.classList.toggle('active', btn.dataset.suitTab === key));
+  document.querySelectorAll('[data-suit-panel]').forEach((panel) => panel.classList.toggle('active', panel.dataset.suitPanel === key));
+}
+
+// ============================================
+// CFU CALCULATOR (Tab 2) - unchanged
+// ============================================
+const cfuEl = {
+  count1: $('cfu-count1'), count2: $('cfu-count2'), dilution: $('cfu-dilution'),
+  error: $('cfu-error'), avgValue: $('cfu-avgValue'), cfuValue: $('cfu-cfuValue'),
+  logValue: $('cfu-logValue'), adjustedLogValue: $('cfu-adjustedLogValue'),
+  logSubtractInput: $('cfu-logSubtractInput'), formulaText: $('cfu-formulaText'),
+  historyList: $('cfu-historyList')
+};
+const cfuState = { history: [], lastCalc: null };
+
+function fillDilutionOptions() {
+  const sel = cfuEl.dilution; sel.innerHTML = '';
+  for (let i = -10; i <= 10; i++) { const opt = document.createElement('option'); opt.value = String(i); opt.textContent = String(i); sel.appendChild(opt); }
+  sel.value = '-1';
+}
+
+function calculateCFU() {
+  const c1 = Number(cfuEl.count1.value.replace(/,/g, ''));
+  const c2 = Number(cfuEl.count2.value.replace(/,/g, ''));
+  const d = Number(cfuEl.dilution.value);
+
+  if ([cfuEl.count1.value.trim(), cfuEl.count2.value.trim()].some(v => v === '')) {
+    cfuEl.error.textContent = ''; return;
+  }
+  if ([c1, c2, d].some(v => Number.isNaN(v))) { cfuEl.error.textContent = 'Enter valid numbers in all three fields.'; return; }
+  if (d < -10 || d > 10) { cfuEl.error.textContent = 'Dilution exponent must be between -10 and 10.'; return; }
+  if (c1 < 0 || c2 < 0) { cfuEl.error.textContent = 'Plate counts must be zero or greater.'; return; }
+
+  cfuEl.error.textContent = '';
+  const rawAvg = (c1 + c2) / 2;
+  const avg = roundUSP(rawAvg);
+  const cfu = avg / (10 ** d);
+  const log10 = Math.log10(cfu);
+  const avgText = fmtNumber(avg);
+  const cfuText = fmtSciFromRounded(cfu);
+  const logText = Number(log10.toFixed(2)).toFixed(2);
+
+  cfuState.lastCalc = { c1, c2, d, rawAvg, avgText, cfuText, log10, logText };
+
+  cfuEl.avgValue.textContent = avgText;
+  cfuEl.cfuValue.textContent = cfuText;
+  cfuEl.logValue.textContent = logText;
+  cfuEl.adjustedLogValue.textContent = '—';
+  cfuEl.formulaText.textContent = 'Average = (' + fmtNumber(c1) + ' + ' + fmtNumber(c2) + ') / 2 = ' + fmtNumber(rawAvg) + ' -> ' + avgText + '; CFU/mL = ' + avgText + ' / 10^' + d + ' = ' + cfuText + '; log10 = ' + logText + '.';
+
+  cfuState.history.unshift({ input: fmtNumber(c1) + '/' + fmtNumber(c2) + ' ' + d, avg: avgText, cfu: cfuText, log: logText, adjusted: '—', ts: nowLocale() });
+  cfuState.history = cfuState.history.slice(0, 8);
+  renderHistory();
+  updateAdjustedCFU(false);
+}
+
+function renderHistory() {
+  if (!cfuState.history.length) { cfuEl.historyList.innerHTML = '<div class="muted">No calculations yet.</div>'; return; }
+  cfuEl.historyList.innerHTML = cfuState.history.map(item => `
+    <article class="history-item">
+      <div class="history-head"><strong class="mono">${item.input}</strong><span class="muted">${item.ts}</span></div>
+      <div class="muted mono">Avg ${item.avg} | CFU/mL ${item.cfu} | log10 ${item.log}${item.adjusted !== '—' ? ' | Adjusted ' + item.adjusted : ''}</div>
+    </article>
+  `).join('');
+}
+
+function updateAdjustedCFU(saveHistory = false) {
+  if (!cfuState.lastCalc) { cfuEl.adjustedLogValue.textContent = '—'; return; }
+  const subtractRaw = cfuEl.logSubtractInput.value.trim();
+  if (subtractRaw === '') {
+    cfuEl.adjustedLogValue.textContent = '—';
+    cfuEl.formulaText.textContent = 'Average = (' + fmtNumber(cfuState.lastCalc.c1) + ' + ' + fmtNumber(cfuState.lastCalc.c2) + ') / 2 = ' + fmtNumber(cfuState.lastCalc.rawAvg) + ' -> ' + cfuState.lastCalc.avgText + '; CFU/mL = ' + cfuState.lastCalc.avgText + ' / 10^' + cfuState.lastCalc.d + ' = ' + cfuState.lastCalc.cfuText + '; log10 = ' + cfuState.lastCalc.logText + '.';
+    return;
+  }
+  const enteredValue = Number(subtractRaw.replace(/,/g, ''));
+  if (Number.isNaN(enteredValue)) { cfuEl.adjustedLogValue.textContent = '—'; return; }
+  const adjusted = enteredValue - cfuState.lastCalc.log10;
+  const adjustedText = Number(adjusted.toFixed(2)).toFixed(2);
+  cfuEl.adjustedLogValue.textContent = adjustedText;
+  cfuEl.formulaText.textContent = 'Average = (' + fmtNumber(cfuState.lastCalc.c1) + ' + ' + fmtNumber(cfuState.lastCalc.c2) + ') / 2 = ' + fmtNumber(cfuState.lastCalc.rawAvg) + ' -> ' + cfuState.lastCalc.avgText + '; CFU/mL = ' + cfuState.lastCalc.avgText + ' / 10^' + cfuState.lastCalc.d + ' = ' + cfuState.lastCalc.cfuText + '; log10 = ' + cfuState.lastCalc.logText + '; log reduction = ' + fmtNumber(enteredValue) + ' - ' + cfuState.lastCalc.logText + ' = ' + adjustedText + '.';
+  if (saveHistory) {
+    cfuState.history[0].adjusted = adjustedText;
+    renderHistory();
+  }
+}
+
+function clearCFU() {
+  cfuEl.count1.value = ''; cfuEl.count2.value = ''; cfuEl.dilution.value = '-1';
+  cfuEl.error.textContent = ''; cfuEl.avgValue.textContent = '—'; cfuEl.cfuValue.textContent = '—';
+  cfuEl.logValue.textContent = '—'; cfuEl.adjustedLogValue.textContent = '—'; cfuEl.logSubtractInput.value = '';
+  cfuEl.formulaText.textContent = 'Formula: average = (count1 + count2) / 2, CFU/mL = average / 10^dilution, log10 = log10(CFU/mL).';
+  cfuState.lastCalc = null;
+  cfuEl.count1.focus();
+}
+
+// ============================================
+// SAVE SUMMARY - Single mobile-friendly text file
+// ============================================
+function gatherSuitabilityData() {
+  const organisms = {};
+  suitKeys.forEach(key => {
+    const refs = suitState.suit[key];
+    const posAvg = avgPair(parseNum(refs.pos1.value), parseNum(refs.pos2.value));
+    const neuAvg = avgPair(parseNum(refs.neu1.value), parseNum(refs.neu2.value));
+    const s1Avg  = avgPair(parseNum(refs.t1a.value),  parseNum(refs.t1b.value));
+    const s2Avg  = avgPair(parseNum(refs.t2a.value),  parseNum(refs.t2b.value));
+    const s3Avg  = avgPair(parseNum(refs.t3a.value),  parseNum(refs.t3b.value));
+
+    const dilutions = [
+      { dilution: -1, plate1: parseNum(refs.t1a.value), plate2: parseNum(refs.t1b.value), avg: s1Avg, recoveryPct: posAvg && posAvg > 0 && s1Avg !== null ? roundFinalPercent((s1Avg / posAvg) * 100) : null },
+      { dilution: -2, plate1: parseNum(refs.t2a.value), plate2: parseNum(refs.t2b.value), avg: s2Avg, recoveryPct: posAvg && posAvg > 0 && s2Avg !== null ? roundFinalPercent((s2Avg / posAvg) * 100) : null },
+      { dilution: -3, plate1: parseNum(refs.t3a.value), plate2: parseNum(refs.t3b.value), avg: s3Avg, recoveryPct: posAvg && posAvg > 0 && s3Avg !== null ? roundFinalPercent((s3Avg / posAvg) * 100) : null }
+    ];
+
+    const passingDilutions = dilutions
+      .filter(d => d.recoveryPct !== null && d.recoveryPct >= 50 && d.recoveryPct <= 200)
+      .map(d => d.dilution);
+
+    organisms[key] = {
+      organism: organismNames[key],
+      positiveControl: { plate1: parseNum(refs.pos1.value), plate2: parseNum(refs.pos2.value), average: posAvg },
+      neutralizerControl: { plate1: parseNum(refs.neu1.value), plate2: parseNum(refs.neu2.value), average: neuAvg },
+      neutralizerRecoveryPct: posAvg && posAvg > 0 && neuAvg !== null ? roundFinalPercent((neuAvg / posAvg) * 100) : null,
+      testSamples: dilutions,
+      lowestPassingDilution: passingDilutions.length ? Math.max(...passingDilutions) : null
+    };
+  });
+  return organisms;
+}
+
+function gatherGlobalSummary() {
+  const results = [];
+  suitKeys.forEach((key) => {
+    const refs = suitState.suit[key];
+    const posAvg = avgPair(parseNum(refs.pos1.value), parseNum(refs.pos2.value));
+    if (!(Number.isFinite(posAvg) && posAvg > 0)) return;
+    const rows = [
+      {d:-1, avg: avgPair(parseNum(refs.t1a.value), parseNum(refs.t1b.value))},
+      {d:-2, avg: avgPair(parseNum(refs.t2a.value), parseNum(refs.t2b.value))},
+      {d:-3, avg: avgPair(parseNum(refs.t3a.value), parseNum(refs.t3b.value))}
+    ].filter(x => x.avg !== null && Number.isFinite(x.avg));
+    const passing = rows.filter(x => {
+      const pct = roundFinalPercent((x.avg / posAvg) * 100);
+      return pct >= 50 && pct <= 200;
+    }).sort((a,b) => b.d - a.d);
+    if (passing.length) results.push({key, d: passing[0].d});
+  });
+  if (!results.length) return { mostCommonLowestPass: null, detail: 'None of SA, EC, PA, CA, or AB has a passing dilution yet.' };
+  const counts = {}; results.forEach(r => counts[r.d] = (counts[r.d] || 0) + 1);
+  const bestCount = Math.max(...Object.values(counts));
+  const bestDs = Object.keys(counts).filter(k => counts[k] === bestCount).map(Number).sort((a,b) => a - b);
+  const chosen = bestDs[0];
+  const labels = { '-1': '10^-1', '-2': '10^-2', '-3': '10^-3' };
+  return {
+    mostCommonLowestPass: chosen,
+    mostCommonLowestPassLabel: labels[String(chosen)],
+    count: bestCount,
+    totalOrganismsWithPass: results.length,
+    detail: 'Across SA, EC, PA, CA, and AB, the most common lowest passing dilution is ' + labels[String(chosen)] + ' (' + bestCount + ' of ' + results.length + ' organisms).'
+  };
+}
+
+function buildSummaryObject() {
+  const sampleId = $('sampleId').value.trim() || 'UNSPECIFIED';
+  return {
+    sampleId,
+    timestamp: nowISO(),
+    suitability: {
+      organisms: gatherSuitabilityData(),
+      globalSummary: gatherGlobalSummary()
+    }
+  };
+}
+
+function generateTextReport(data) {
+  const lines = [];
+  const S = '  '; // indent
+
+  lines.push('Micro Lab Calculator - Suitability Report');
+  lines.push('==========================================');
+  lines.push('Sample ID: ' + data.sampleId);
+  lines.push('Date: ' + new Date(data.timestamp).toLocaleString());
+  lines.push('');
+
+  lines.push('SUITABILITY (USP 51 / 61)');
+  lines.push('--------------------------');
+
+  Object.entries(data.suitability.organisms).forEach(([key, org]) => {
+    lines.push('');
+    lines.push(org.organism + ' (' + key + ')');
+    lines.push(S + 'Positive Control:     P1=' + (org.positiveControl.plate1 ?? '—') + '  P2=' + (org.positiveControl.plate2 ?? '—') + '  Avg=' + (org.positiveControl.average ?? '—'));
+    lines.push(S + 'Neutralizer Control:  P1=' + (org.neutralizerControl.plate1 ?? '—') + '  P2=' + (org.neutralizerControl.plate2 ?? '—') + '  Avg=' + (org.neutralizerControl.average ?? '—'));
+    const neuPass = org.neutralizerRecoveryPct !== null && org.neutralizerRecoveryPct >= 50 && org.neutralizerRecoveryPct <= 200 ? 'PASS' : org.neutralizerRecoveryPct !== null ? 'FAIL' : '';
+    lines.push(S + 'Neutralizer Recovery: ' + (org.neutralizerRecoveryPct ?? '—') + '%  ' + neuPass);
+    lines.push(S + 'Test Samples:');
+    org.testSamples.forEach(d => {
+      const pass = d.recoveryPct !== null && d.recoveryPct >= 50 && d.recoveryPct <= 200 ? 'PASS' : d.recoveryPct !== null ? 'FAIL' : '—';
+      lines.push(S + S + '10^' + d.dilution + ': P1=' + (d.plate1 ?? '—') + ' P2=' + (d.plate2 ?? '—') + ' Avg=' + (d.avg ?? '—') + ' Rec=' + (d.recoveryPct ?? '—') + '% ' + pass);
+    });
+    lines.push(S + 'Lowest Pass: ' + (org.lowestPassingDilution !== null ? '10^' + org.lowestPassingDilution : 'None'));
+  });
+
+  lines.push('');
+  lines.push('GLOBAL SUMMARY');
+  lines.push(S + data.suitability.globalSummary.detail);
+  lines.push('');
+  lines.push('--- End of Report ---');
+  return lines.join('\n');
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function saveSummary() {
+  const data = buildSummaryObject();
+  const sampleId = sanitizeFilename(data.sampleId);
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+  const textContent = generateTextReport(data);
+  downloadFile(textContent, sampleId + '_suitability_' + ts + '.txt', 'text/plain');
+}
+
+// ============================================
+// MAIN TAB SWITCHING
+// ============================================
+function setMainTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mainTab === name));
+  document.getElementById('panel-suitability').classList.toggle('active', name === 'suitability');
+  document.getElementById('panel-cfu').classList.toggle('active', name === 'cfu');
+  document.getElementById('subtitleText').textContent = name === 'suitability'
+    ? 'Suitability: Compare neutralized test samples to positive control. Recovery must be 50-200% per USP 61 / 51.'
+    : 'CFU Calculator: Enter two plate counts and the dilution exponent. Returns average, CFU/mL, and log10.';
+  if (name === 'suitability') setSuitTab(suitState.activeSuitTab);
+}
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+  document.querySelector('[data-theme-toggle]').addEventListener('click', toggleTheme);
+  document.getElementById('saveBtn').addEventListener('click', saveSummary);
+  document.querySelectorAll('[data-main-tab]').forEach(btn => btn.addEventListener('click', () => setMainTab(btn.dataset.mainTab)));
+  document.querySelectorAll('[data-suit-tab]').forEach(btn => btn.addEventListener('click', () => setSuitTab(btn.dataset.suitTab)));
+
+  // CFU listeners
+  [cfuEl.count1, cfuEl.count2, cfuEl.dilution].forEach(input => {
+    input.addEventListener('input', calculateCFU);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') calculateCFU(); });
+  });
+  cfuEl.logSubtractInput.addEventListener('input', () => updateAdjustedCFU(false));
+  cfuEl.logSubtractInput.addEventListener('keydown', e => { if (e.key === 'Enter') updateAdjustedCFU(true); });
+  $('cfu-clearBtn').addEventListener('click', clearCFU);
+
+  setTheme();
+  fillDilutionOptions();
+  renderSuitabilityTabs();
+  setSuitTab('SA');
+  setMainTab('suitability');
+}
+
+init();
+</script>
 </body>
 </html>
